@@ -32,8 +32,7 @@ export default function HomePage() {
           </Link>
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <Link href="/auth/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors px-4 py-2 font-medium">Sign In</Link>
-            <Link href="/auth/signup" className="text-sm bg-gradient-to-r from-violet-600 to-fuchsia-500 hover:from-violet-700 hover:to-fuchsia-600 text-white px-5 py-2.5 rounded-lg font-semibold transition-all shadow-md shadow-violet-500/20 hover:shadow-violet-500/30">Get Started</Link>
+            <Link href="/auth/login" className="text-sm bg-gradient-to-r from-violet-600 to-fuchsia-500 hover:from-violet-700 hover:to-fuchsia-600 text-white px-5 py-2.5 rounded-lg font-semibold transition-all shadow-md shadow-violet-500/20 hover:shadow-violet-500/30">Sign In</Link>
           </div>
         </div>
       </nav>
@@ -57,11 +56,8 @@ export default function HomePage() {
             AI-powered studio that generates listing-ready invitation templates, matching mockups, and SEO-optimized Etsy copy — all in one click.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/auth/signup" className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white px-8 py-3.5 rounded-xl font-semibold text-lg transition-all shadow-lg shadow-violet-500/20 hover:shadow-violet-500/30 hover:-translate-y-0.5">
-              Start Creating <ArrowRight className="w-5 h-5" />
-            </Link>
-            <Link href="/auth/login" className="inline-flex items-center gap-2 bg-card text-foreground px-8 py-3.5 rounded-xl font-medium text-lg transition-all border border-border hover:border-primary/30 hover:bg-accent">
-              Sign In
+            <Link href="/auth/login" className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white px-8 py-3.5 rounded-xl font-semibold text-lg transition-all shadow-lg shadow-violet-500/20 hover:shadow-violet-500/30 hover:-translate-y-0.5">
+              Sign In <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
         </div>
@@ -140,8 +136,8 @@ export default function HomePage() {
         <div className="text-center p-12 rounded-3xl bg-gradient-to-r from-violet-500/5 via-fuchsia-500/5 to-pink-500/5 dark:from-violet-500/10 dark:via-fuchsia-500/10 dark:to-pink-500/10 border border-primary/10">
           <h2 className="text-3xl font-bold text-foreground mb-4">Ready to Transform Your Etsy Shop?</h2>
           <p className="text-muted-foreground mb-8 max-w-lg mx-auto">Join sellers using AI to create professional digital products in seconds, not hours.</p>
-          <Link href="/auth/signup" className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white px-8 py-3.5 rounded-xl font-semibold text-lg shadow-lg shadow-violet-500/20 hover:shadow-violet-500/30 transition-all hover:-translate-y-0.5">
-            Get Started Free <Sparkles className="w-5 h-5" />
+          <Link href="/auth/login" className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white px-8 py-3.5 rounded-xl font-semibold text-lg shadow-lg shadow-violet-500/20 hover:shadow-violet-500/30 transition-all hover:-translate-y-0.5">
+            Sign In <Sparkles className="w-5 h-5" />
           </Link>
         </div>
       </section>

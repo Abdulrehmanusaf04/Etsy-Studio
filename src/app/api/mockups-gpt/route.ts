@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/shared/lib/supabase/server";
-import { generateAllMockups, generateEtsyDescription, analyzeDesignImage } from "@/shared/lib/gemini";
+import { generateAllMockups, generateEtsyDescription, analyzeDesignImage } from "@/shared/lib/openai";
 
 export async function POST(request: NextRequest) {
   try {
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       }).select().single();
 
       if (genError) {
-        console.error("Failed to create dummy generation:", genError);
+        console.error("[GPT] Failed to create dummy generation:", genError);
         return NextResponse.json({ error: "Failed to initialize external upload" }, { status: 500 });
       }
       actualGenerationId = newGen.id;
@@ -114,14 +114,14 @@ export async function POST(request: NextRequest) {
       const ts = Date.now();
       for (let i = 0; i < mockupImages.length; i++) {
         const buf = Buffer.from(mockupImages[i], "base64");
-        const path = `${user.id}/${actualGenerationId}/mockup-${i + 1}-${ts}.png`;
+        const path = `${user.id}/${actualGenerationId}/mockup-gpt-${i + 1}-${ts}.png`;
 
         const { error: uploadError } = await supabase.storage
           .from("generations")
           .upload(path, buf, { contentType: "image/png", upsert: true });
 
         if (uploadError) {
-          console.error(`Mockup ${i + 1} upload error:`, uploadError);
+          console.error(`[GPT] Mockup ${i + 1} upload error:`, uploadError);
           continue;
         }
 
@@ -129,8 +129,8 @@ export async function POST(request: NextRequest) {
 
         mockupAssets.push({
           url: urlData.publicUrl,
-          file_name: `mockup-${i + 1}-${ts}.png`,
-          description: `Mockup ${i + 1} for ${category_name}`,
+          file_name: `mockup-gpt-${i + 1}-${ts}.png`,
+          description: `GPT Mockup ${i + 1} for ${category_name}`,
         });
 
         // Save asset record
@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
           user_id: user.id,
           generation_id: actualGenerationId,
           asset_type: "mockup",
-          file_name: `mockup-${i + 1}-${ts}.png`,
+          file_name: `mockup-gpt-${i + 1}-${ts}.png`,
           file_path: path,
           file_type: "image",
           file_size: buf.length,
@@ -159,7 +159,7 @@ export async function POST(request: NextRequest) {
         .select().single();
 
       if (msError) {
-        console.error("Mockup set insert error:", msError);
+        console.error("[GPT] Mockup set insert error:", msError);
         return NextResponse.json({ error: "Failed to save mockup set" }, { status: 500 });
       }
 
@@ -200,7 +200,7 @@ export async function POST(request: NextRequest) {
                 const imgMime = imgRes.headers.get("content-type") || "image/png";
                 richDescription = await analyzeDesignImage(imgBase64, imgMime, category_name, extractedText);
               } catch (fetchErr) {
-                console.warn("Could not fetch template for analysis, using fallback description:", fetchErr);
+                console.warn("[GPT] Could not fetch template for analysis, using fallback description:", fetchErr);
               }
             }
 
@@ -226,7 +226,7 @@ export async function POST(request: NextRequest) {
               etsy_tags: etsyListing.tags,
             }).eq("id", actualGenerationId);
           } catch (descError) {
-            console.error("Etsy description generation failed (non-fatal):", descError);
+            console.error("[GPT] Etsy description generation failed (non-fatal):", descError);
           }
         }
       }
@@ -245,11 +245,11 @@ export async function POST(request: NextRequest) {
         error_message: aiError instanceof Error ? aiError.message : "Unknown error",
       });
 
-      console.error("Mockup generation error:", aiError);
+      console.error("[GPT] Mockup generation error:", aiError);
       return NextResponse.json({ error: "Mockup generation failed", details: aiError instanceof Error ? aiError.message : "Unknown error" }, { status: 500 });
     }
   } catch (error) {
-    console.error("Mockups API error:", error);
+    console.error("[GPT] Mockups API error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

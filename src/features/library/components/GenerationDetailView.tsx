@@ -6,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
-import { ArrowLeft, Download, Copy, CheckCircle2, Type, ImageIcon, FileText, Images, Trash2 } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle } from "@/shared/components/ui/dialog";
+import { ArrowLeft, Download, Copy, CheckCircle2, Type, ImageIcon, FileText, Images, Trash2, X } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import type { Generation, MockupSet, EtsyDescription } from "@/shared/types/global.types";
 import Link from "next/link";
@@ -19,6 +20,7 @@ export function GenerationDetailView() {
   const [etsyDesc, setEtsyDesc] = useState<EtsyDescription | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState<string | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const supabase = createClient();
 
   useEffect(() => {
@@ -49,7 +51,7 @@ export function GenerationDetailView() {
   if (loading) return <div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-2 border-violet-200 dark:border-violet-500/20 border-t-violet-600 rounded-full animate-spin" /></div>;
   if (!gen) return <div className="text-center py-20"><p className="text-muted-foreground">Generation not found</p></div>;
 
-  const latestMockups = mockupSets[0];
+  const allMockups = mockupSets.flatMap(set => set.mockup_assets_json || []);
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
@@ -80,10 +82,10 @@ export function GenerationDetailView() {
           </TabsList>
           <TabsContent value="with-text" className="mt-4">
             {gen.image_with_text_url ? (
-              <Card className="bg-card border-border shadow-sm overflow-hidden">
+              <Card className="bg-card border-border shadow-sm overflow-hidden cursor-pointer" onClick={() => setPreviewImage(gen.image_with_text_url!)}>
                 <div className="relative group"><img src={gen.image_with_text_url} alt="With text" className="w-full h-auto" />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <Button onClick={() => handleDownload(gen.image_with_text_url!, `${gen.title}-with-text.png`)} className="bg-card/90 text-foreground hover:bg-card gap-2 cursor-pointer"><Download className="w-4 h-4" />Download</Button>
+                    <Button onClick={(e) => { e.stopPropagation(); handleDownload(gen.image_with_text_url!, `${gen.title}-with-text.png`); }} className="bg-card/90 text-foreground hover:bg-card gap-2 cursor-pointer"><Download className="w-4 h-4" />Download</Button>
                   </div>
                 </div>
               </Card>
@@ -91,10 +93,10 @@ export function GenerationDetailView() {
           </TabsContent>
           <TabsContent value="without-text" className="mt-4">
             {gen.image_without_text_url ? (
-              <Card className="bg-card border-border shadow-sm overflow-hidden">
+              <Card className="bg-card border-border shadow-sm overflow-hidden cursor-pointer" onClick={() => setPreviewImage(gen.image_without_text_url!)}>
                 <div className="relative group"><img src={gen.image_without_text_url} alt="Without text" className="w-full h-auto" />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <Button onClick={() => handleDownload(gen.image_without_text_url!, `${gen.title}-without-text.png`)} className="bg-card/90 text-foreground hover:bg-card gap-2 cursor-pointer"><Download className="w-4 h-4" />Download</Button>
+                    <Button onClick={(e) => { e.stopPropagation(); handleDownload(gen.image_without_text_url!, `${gen.title}-without-text.png`); }} className="bg-card/90 text-foreground hover:bg-card gap-2 cursor-pointer"><Download className="w-4 h-4" />Download</Button>
                   </div>
                 </div>
               </Card>
@@ -107,20 +109,20 @@ export function GenerationDetailView() {
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-foreground">Mockups</h2>
-          {!latestMockups && (
+          {allMockups.length === 0 && (
             <Link href="/dashboard/mockups">
               <Button className="bg-amber-500 hover:bg-amber-600 text-white gap-2 cursor-pointer"><Images className="w-4 h-4" />Generate Mockups</Button>
             </Link>
           )}
         </div>
-        {latestMockups ? (
+        {allMockups.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {latestMockups.mockup_assets_json.map((m, i) => (
-              <Card key={i} className="bg-card border-border shadow-sm overflow-hidden group">
+            {allMockups.map((m, i) => (
+              <Card key={i} className="bg-card border-border shadow-sm overflow-hidden group cursor-pointer" onClick={() => setPreviewImage(m.url)}>
                 <CardContent className="p-0 relative">
                   <img src={m.url} alt={m.description} className="w-full aspect-[14/11] object-cover" />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <Button onClick={() => handleDownload(m.url, m.file_name)} className="bg-card/90 text-foreground hover:bg-card gap-2 text-xs cursor-pointer"><Download className="w-3 h-3" />Download</Button>
+                    <Button onClick={(e) => { e.stopPropagation(); handleDownload(m.url, m.file_name); }} className="bg-card/90 text-foreground hover:bg-card gap-2 text-xs cursor-pointer"><Download className="w-3 h-3" />Download</Button>
                   </div>
                 </CardContent>
               </Card>
@@ -186,6 +188,28 @@ export function GenerationDetailView() {
           {gen.prompt && <div className="pt-2 border-t border-border"><span className="text-muted-foreground text-xs block mb-1">Prompt</span><p className="text-foreground/90 text-xs bg-muted p-2 rounded">{gen.prompt}</p></div>}
         </CardContent>
       </Card>
+
+      {/* Image Preview Modal */}
+      <Dialog open={!!previewImage} onOpenChange={(open) => !open && setPreviewImage(null)}>
+        <DialogContent className="max-w-5xl w-full p-1 bg-transparent border-none shadow-none [&>button]:hidden flex flex-col items-center justify-center h-[90vh]">
+          <DialogTitle className="sr-only">Image Preview</DialogTitle>
+          <div className="relative w-full h-full flex items-center justify-center">
+            {previewImage && (
+              <>
+                <img src={previewImage} alt="Preview" className="max-w-full max-h-full object-contain rounded-md" />
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setPreviewImage(null)} 
+                  className="absolute top-0 right-0 m-4 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 backdrop-blur-sm cursor-pointer z-50"
+                >
+                  <X className="w-6 h-6" />
+                </Button>
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

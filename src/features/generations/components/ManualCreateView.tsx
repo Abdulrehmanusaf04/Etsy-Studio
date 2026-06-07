@@ -137,9 +137,13 @@ export function ManualCreateView() {
                 <div className="space-y-2">
                   <Label className="text-foreground/90">Category *</Label>
                   <Select value={categoryId} onValueChange={(v) => v && setCategoryId(v)} required>
-                    <SelectTrigger className="bg-card border-border text-foreground"><SelectValue placeholder="Select a category" /></SelectTrigger>
+                    <SelectTrigger className="bg-card border-border text-foreground">
+                      <SelectValue placeholder="Select a category">
+                        {categoryId ? (categories.find(c => c.id === categoryId) ? `${categories.find(c => c.id === categoryId)?.icon || ""} ${categories.find(c => c.id === categoryId)?.name}`.trim() : categoryId) : undefined}
+                      </SelectValue>
+                    </SelectTrigger>
                     <SelectContent className="bg-card border-border">{categories.map((c) => (
-                      <SelectItem key={c.id} value={c.id} className="text-foreground/90">{c.icon} {c.name}</SelectItem>
+                      <SelectItem key={c.id} value={c.id} label={`${c.icon || ""} ${c.name}`.trim()} className="text-foreground/90">{c.icon} {c.name}</SelectItem>
                     ))}</SelectContent>
                   </Select>
                 </div>
@@ -173,10 +177,14 @@ export function ManualCreateView() {
                 <div className="space-y-2">
                   <Label className="text-foreground/90">Preset (optional)</Label>
                   <Select value={presetId} onValueChange={(v) => v && setPresetId(v)}>
-                    <SelectTrigger className="bg-card border-border text-foreground"><SelectValue placeholder="No preset" /></SelectTrigger>
+                    <SelectTrigger className="bg-card border-border text-foreground">
+                      <SelectValue placeholder="No preset">
+                        {presetId ? (presets.find(x => x.id === presetId) ? presets.find(x => x.id === presetId)?.name : presetId) : undefined}
+                      </SelectValue>
+                    </SelectTrigger>
                     <SelectContent className="bg-card border-border">
                       {presets.length === 0 ? <p className="p-3 text-sm text-muted-foreground">No presets yet</p> :
-                        presets.map((p) => <SelectItem key={p.id} value={p.id} className="text-foreground/90">{p.name}</SelectItem>)
+                        presets.map((p) => <SelectItem key={p.id} value={p.id} label={p.name} className="text-foreground/90">{p.name}</SelectItem>)
                       }
                     </SelectContent>
                   </Select>

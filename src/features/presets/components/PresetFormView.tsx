@@ -85,9 +85,13 @@ export function PresetFormView() {
             <div className="space-y-2">
               <Label className="text-foreground/90">Default Category (optional)</Label>
               <Select value={categoryId} onValueChange={(v) => v && setCategoryId(v)}>
-                <SelectTrigger className="bg-card border-border text-foreground"><SelectValue placeholder="Any category" /></SelectTrigger>
+                <SelectTrigger className="bg-card border-border text-foreground">
+                  <SelectValue placeholder="Any category">
+                    {categoryId ? (categories.find(c => c.id === categoryId) ? `${categories.find(c => c.id === categoryId)?.icon || ""} ${categories.find(c => c.id === categoryId)?.name}`.trim() : categoryId) : undefined}
+                  </SelectValue>
+                </SelectTrigger>
                 <SelectContent className="bg-card border-border">{categories.map((c) => (
-                  <SelectItem key={c.id} value={c.id} className="text-foreground/90">{c.icon} {c.name}</SelectItem>
+                  <SelectItem key={c.id} value={c.id} label={`${c.icon || ""} ${c.name}`.trim()} className="text-foreground/90">{c.icon} {c.name}</SelectItem>
                 ))}</SelectContent>
               </Select>
             </div>

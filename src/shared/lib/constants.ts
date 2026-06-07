@@ -77,4 +77,4 @@ export const ASPECT_RATIO = "14:11";
 export const RESOLUTION_OPTIONS = ["HD", "2K", "4K"] as const;
 
 // Mockup count per BRD
-export const MOCKUP_COUNT = 8;
+export const MOCKUP_COUNT = 4;

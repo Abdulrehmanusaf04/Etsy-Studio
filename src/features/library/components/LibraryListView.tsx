@@ -47,16 +47,29 @@ export function LibraryListView() {
         </div>
         <div className="flex items-center gap-3 flex-wrap">
           <Select value={filterCat} onValueChange={(v) => v && setFilterCat(v)}>
-            <SelectTrigger className="w-44 bg-card border-border text-foreground"><Filter className="w-4 h-4 mr-2 text-muted-foreground" /><SelectValue placeholder="Category" /></SelectTrigger>
-            <SelectContent className="bg-card border-border"><SelectItem value="all" className="text-foreground/90">All Categories</SelectItem>{categories.map((c) => (<SelectItem key={c.id} value={c.id} className="text-foreground/90">{c.icon} {c.name}</SelectItem>))}</SelectContent>
+            <SelectTrigger className="w-44 bg-card border-border text-foreground">
+              <Filter className="w-4 h-4 mr-2 text-muted-foreground" />
+              <SelectValue placeholder="Category">
+                {filterCat === "all" ? "All Categories" : (categories.find(c => c.id === filterCat) ? `${categories.find(c => c.id === filterCat)?.icon || ""} ${categories.find(c => c.id === filterCat)?.name}`.trim() : filterCat)}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent className="bg-card border-border"><SelectItem value="all" label="All Categories" className="text-foreground/90">All Categories</SelectItem>{categories.map((c) => (<SelectItem key={c.id} value={c.id} label={`${c.icon || ""} ${c.name}`.trim()} className="text-foreground/90">{c.icon} {c.name}</SelectItem>))}</SelectContent>
           </Select>
           <Select value={filterStatus} onValueChange={(v) => v && setFilterStatus(v)}>
-            <SelectTrigger className="w-36 bg-card border-border text-foreground"><SelectValue placeholder="Status" /></SelectTrigger>
-            <SelectContent className="bg-card border-border"><SelectItem value="all" className="text-foreground/90">All Status</SelectItem><SelectItem value="completed" className="text-foreground/90">Completed</SelectItem><SelectItem value="processing" className="text-foreground/90">Processing</SelectItem><SelectItem value="failed" className="text-foreground/90">Failed</SelectItem></SelectContent>
+            <SelectTrigger className="w-36 bg-card border-border text-foreground">
+              <SelectValue placeholder="Status">
+                {filterStatus === "all" ? "All Status" : filterStatus === "completed" ? "Completed" : filterStatus === "processing" ? "Processing" : filterStatus === "failed" ? "Failed" : filterStatus}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent className="bg-card border-border"><SelectItem value="all" label="All Status" className="text-foreground/90">All Status</SelectItem><SelectItem value="completed" label="Completed" className="text-foreground/90">Completed</SelectItem><SelectItem value="processing" label="Processing" className="text-foreground/90">Processing</SelectItem><SelectItem value="failed" label="Failed" className="text-foreground/90">Failed</SelectItem></SelectContent>
           </Select>
           <Select value={filterSource} onValueChange={(v) => v && setFilterSource(v)}>
-            <SelectTrigger className="w-36 bg-card border-border text-foreground"><SelectValue placeholder="Source" /></SelectTrigger>
-            <SelectContent className="bg-card border-border"><SelectItem value="all" className="text-foreground/90">All Sources</SelectItem><SelectItem value="manual" className="text-foreground/90">Manual</SelectItem><SelectItem value="auto" className="text-foreground/90">Auto</SelectItem></SelectContent>
+            <SelectTrigger className="w-36 bg-card border-border text-foreground">
+              <SelectValue placeholder="Source">
+                {filterSource === "all" ? "All Sources" : filterSource === "manual" ? "Manual" : filterSource === "auto" ? "Auto" : filterSource}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent className="bg-card border-border"><SelectItem value="all" label="All Sources" className="text-foreground/90">All Sources</SelectItem><SelectItem value="manual" label="Manual" className="text-foreground/90">Manual</SelectItem><SelectItem value="auto" label="Auto" className="text-foreground/90">Auto</SelectItem></SelectContent>
           </Select>
         </div>
       </div>
@@ -76,19 +89,22 @@ export function LibraryListView() {
             <Link key={gen.id} href={`/dashboard/library/${gen.id}`}>
               <Card className="bg-card border-border shadow-sm overflow-hidden group hover:border-violet-200 dark:border-violet-500/20 hover:shadow-md hover:shadow-violet-50 transition-all duration-300 cursor-pointer">
                 <CardContent className="p-0">
-                  {gen.thumbnail_url ? (
-                    <div className="relative h-48 overflow-hidden">
-                      <img src={gen.thumbnail_url} alt={gen.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                      <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-                        <span className="text-xs px-2 py-1 rounded-full bg-card/90 text-foreground/90 font-medium backdrop-blur">{gen.category?.name}</span>
-                        <span className={`text-xs px-2 py-1 rounded-full font-medium backdrop-blur ${
-                          gen.status === "completed" ? "bg-emerald-50 dark:bg-emerald-500/10/90 text-emerald-700 dark:text-emerald-400" : gen.status === "failed" ? "bg-red-50 dark:bg-red-500/10/90 text-red-700 dark:text-red-400" : "bg-amber-50 dark:bg-amber-500/10/90 text-amber-700 dark:text-amber-400"
-                        }`}>{gen.status}</span>
+                  {(() => {
+                    const displayUrl = gen.thumbnail_url || gen.image_with_text_url || gen.image_without_text_url;
+                    return displayUrl ? (
+                      <div className="relative h-48 overflow-hidden">
+                        <img src={displayUrl} alt={gen.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+                          <span className="text-xs px-2 py-1 rounded-full bg-card/90 text-foreground/90 font-medium backdrop-blur">{gen.category?.name}</span>
+                          <span className={`text-xs px-2 py-1 rounded-full font-medium backdrop-blur ${
+                            gen.status === "completed" ? "bg-emerald-50 dark:bg-emerald-500/10/90 text-emerald-700 dark:text-emerald-400" : gen.status === "failed" ? "bg-red-50 dark:bg-red-500/10/90 text-red-700 dark:text-red-400" : "bg-amber-50 dark:bg-amber-500/10/90 text-amber-700 dark:text-amber-400"
+                          }`}>{gen.status}</span>
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="h-48 bg-muted flex items-center justify-center"><ImageIcon className="w-10 h-10 text-gray-300" /></div>
-                  )}
+                    ) : (
+                      <div className="h-48 bg-muted flex items-center justify-center"><ImageIcon className="w-10 h-10 text-gray-300" /></div>
+                    );
+                  })()}
                   <div className="p-4">
                     <p className="font-medium text-foreground truncate text-sm">{gen.title}</p>
                     <p className="text-xs text-muted-foreground mt-1">{new Date(gen.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} · {gen.source_type}</p>

@@ -64,13 +64,11 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      // Step 2: Generate templates + Etsy listing in parallel
+      // Step 2: Generate templates sequentially (avoid burst API calls)
       const templateReq = { category: category.name, prompt: refinedPrompt, presetPrompt, referenceImages: reference_images };
-      const [imageWithTextBase64, imageWithoutTextBase64, etsyListing] = await Promise.all([
-        generateTemplateImage(templateReq, true),
-        generateTemplateImage(templateReq, false),
-        generateEtsyDescription(category.name, refinedPrompt, prompt),
-      ]);
+      const imageWithTextBase64 = await generateTemplateImage(templateReq, true);
+      const imageWithoutTextBase64 = await generateTemplateImage(templateReq, false);
+      const etsyListing = await generateEtsyDescription(category.name, refinedPrompt, prompt);
 
       // Upload images
       const ts = Date.now();
